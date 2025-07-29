@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="actividades_mascotas">
+        <item>Baño</item>
+        <item>Beber</item>
+        <item>Caminata</item>
+        <item>Comer</item>
+        <item>Correr</item>
+        <item>Dormir</item>
+        <item>Juego</item>
+        <item>Nececidades</item>
+        <item>Otros</item>
+        <item>Paseo</item>
+        <item>Siesta</item>
+        <item>Vacunación</item>
+    </string-array>
+</resources>
