@@ -1,5 +1,8 @@
 package com.example.diariodemascotas;
 
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +14,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -19,19 +24,38 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.diariodemascotas.models.DiarioMascotaModel;
 
+import java.util.Calendar;
+
 public class RegistroActividad extends AppCompatActivity {
 
     Toolbar toolbar;
-    EditText fecha_registro;
+    EditText fechaRegistro;
     EditText titulo;
     EditText nota;
-    Spinner spinner_actividades;
-    Button btn_agregar_imagen;
+    Spinner spinnerActividades;
+    Button btnAgregarImagen;
     ImageView imageView;
     CheckBox checkBoxFavoritoS;
-    Button btn_cancelar;
-    Button btn_guardar;
+    Button btnCancelar;
+    Button btnGuardar;
 
+    String uriImage;
+    ImageView btnDesplegarFecha;
+
+    private final ActivityResultLauncher<String[]> seleccionarImagenLauncher =
+            registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
+                if (uri != null) {
+                    imageView.setImageURI(uri);
+
+                    final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+                    try {
+                        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    }
+                    uriImage = uri.toString(); // Guardar en tu modelo
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,23 +69,26 @@ public class RegistroActividad extends AppCompatActivity {
         });
 
 
+
+
         toolbar = findViewById(R.id.toolbar);
-        fecha_registro = findViewById(R.id.fecha_registro);
+        fechaRegistro = findViewById(R.id.fecha_registro);
         titulo = findViewById(R.id.titulo);
         nota = findViewById(R.id.nota);
-        spinner_actividades = findViewById(R.id.spinner_actividades);
-        btn_agregar_imagen = findViewById(R.id.btn_agregar_imagen);
+        spinnerActividades = findViewById(R.id.spinner_actividades);
+        btnAgregarImagen = findViewById(R.id.btn_agregar_imagen);
         imageView = findViewById(R.id.imageViewFoto);
         checkBoxFavoritoS = findViewById(R.id.checkBoxFavorito);
-        btn_cancelar = findViewById(R.id.btn_cancelar);
-        btn_guardar = findViewById(R.id.btn_guardar);
+        btnCancelar = findViewById(R.id.btn_cancelar);
+        btnGuardar = findViewById(R.id.btn_guardar);
+        btnDesplegarFecha = findViewById(R.id.desplegarFecha);
 
 
         toolbar.setTitle("Toto");
-        spinner_actividades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerActividades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                imageView.setImageResource(llenarImagen(spinner_actividades.getSelectedItem().toString()));
+                imageView.setImageResource(llenarImagen(spinnerActividades.getSelectedItem().toString()));
             }
 
             @Override
@@ -71,14 +98,14 @@ public class RegistroActividad extends AppCompatActivity {
         });
 
 
-        btn_guardar.setOnClickListener(View -> {
+        btnGuardar.setOnClickListener(View -> {
             realizarRegistro();
             Toast.makeText(this, "“\"¡Entrada guardada! \uD83D\uDC36 Tu lomito está orgulloso", Toast.LENGTH_LONG).show();
             finish();
         });
 
 
-        btn_cancelar.setOnClickListener(view -> {
+        btnCancelar.setOnClickListener(view -> {
             getOnBackPressedDispatcher().onBackPressed();
 
         });
@@ -86,15 +113,27 @@ public class RegistroActividad extends AppCompatActivity {
             getOnBackPressedDispatcher().onBackPressed();
         });
 
+        btnAgregarImagen.setOnClickListener(view -> {
+            seleccionarImagenLauncher.launch(new String[] {"image/*"});
+        });
+
+        btnDesplegarFecha.setOnClickListener(view -> {
+            mostrarDatePicker();
+        });
+
+
     }
     public void realizarRegistro(){
         DiarioMascotaModel diarioMascotaModel = new DiarioMascotaModel();
-        diarioMascotaModel.setFecha(fecha_registro.getText().toString());
+        diarioMascotaModel.setId(DiarioMascotaModel.generarNuevoId());
+        diarioMascotaModel.setIdMascota(1);
+        diarioMascotaModel.setFecha(fechaRegistro.getText().toString());
         diarioMascotaModel.setTitulo(titulo.getText().toString());
         diarioMascotaModel.setNota(nota.getText().toString());
-        diarioMascotaModel.setPathImagen(llenarImagen(spinner_actividades.getSelectedItem().toString()));
+        diarioMascotaModel.setPathImagen(llenarImagen(spinnerActividades.getSelectedItem().toString()));
+        diarioMascotaModel.setUriImage(uriImage);
         diarioMascotaModel.setFavorito(checkBoxFavoritoS.isChecked());
-        diarioMascotaModel.setActividad(spinner_actividades.getSelectedItem().toString());
+        diarioMascotaModel.setActividad(spinnerActividades.getSelectedItem().toString());
         DiarioMascotaModel.listaNotasDiario.add(diarioMascotaModel);
     }
 
@@ -129,5 +168,21 @@ public class RegistroActividad extends AppCompatActivity {
         return 0;
     }
 
+    private void mostrarDatePicker() {
+        // Obtener la fecha actual como predeterminada
+        final Calendar calendar = Calendar.getInstance();
+        int anio = calendar.get(Calendar.YEAR);
+        int mes = calendar.get(Calendar.MONTH);
+        int dia = calendar.get(Calendar.DAY_OF_MONTH);
 
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    String fechaSeleccionada = dayOfMonth + "/" + (month + 1) + "/" + year;
+                    fechaRegistro.setText(fechaSeleccionada);
+                },
+                anio, mes, dia
+        );
+        datePickerDialog.show();
+    }
 }

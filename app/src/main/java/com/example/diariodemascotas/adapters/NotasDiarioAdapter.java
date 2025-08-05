@@ -1,8 +1,10 @@
 package com.example.diariodemascotas.adapters;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,8 +20,17 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
 
     List<DiarioMascotaModel> listaNotas;
 
-    public NotasDiarioAdapter(List<DiarioMascotaModel> listaNotas) {
+    public interface OnClickListener
+    {
+        void eliminarItem(int position);
+        void editarItem(int id);
+    }
+
+    OnClickListener onClickListener;
+
+    public NotasDiarioAdapter(List<DiarioMascotaModel> listaNotas, OnClickListener onClickListener) {
         this.listaNotas = listaNotas;
+        this.onClickListener = onClickListener;
     }
 
     @NonNull
@@ -35,7 +46,14 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
         holder.txtFecha.setText(nota.getFecha().toString());
         holder.txtTitulo.setText(nota.getTitulo());
         holder.txtNota.setText(nota.getNota());
-        holder.imgMascota.setImageResource(nota.getPathImagen());
+
+        if (nota.getUriImage() != null) {
+
+            Uri uri = Uri.parse(nota.getUriImage());
+            holder.imgMascota.setImageURI(uri);
+        }else {
+            holder.imgMascota.setImageResource(nota.getPathImagen());
+        }
         if(nota.isFavorito()){
             holder.imgFavorito.setVisibility(View.VISIBLE);
         }else{
@@ -51,6 +69,7 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
     public class ViewHolderNotas extends RecyclerView.ViewHolder {
         TextView txtFecha, txtTitulo, txtNota;
         ImageView imgMascota, imgFavorito;
+        Button btnEditar, btnEliminar;
         public ViewHolderNotas(@NonNull View itemView) {
             super(itemView);
 
@@ -59,6 +78,20 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
             txtNota = itemView.findViewById(R.id.nota);
             imgMascota = itemView.findViewById(R.id.imagen);
             imgFavorito = itemView.findViewById(R.id.icon_favorite);
+
+
+            btnEditar = itemView.findViewById(R.id.btn_editar);
+            btnEliminar = itemView.findViewById(R.id.btn_eliminar);
+
+            btnEditar.setOnClickListener(view -> {
+                int id = listaNotas.get(getAdapterPosition()).getId();
+                onClickListener.editarItem(id);
+
+            });
+
+            btnEliminar.setOnClickListener(view -> {
+                onClickListener.eliminarItem(getAdapterPosition());
+            });
         }
     }
 }

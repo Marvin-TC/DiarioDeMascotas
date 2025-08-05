@@ -1,5 +1,7 @@
 package com.example.diariodemascotas.models;
 
+import android.net.Uri;
+
 import com.example.diariodemascotas.R;
 
 import java.util.ArrayList;
@@ -14,15 +16,17 @@ public class DiarioMascotaModel {
     int pathImagen;
     boolean favorito;
     String  actividad;
+    String uriImage;
+
     public static List<DiarioMascotaModel> listaNotasDiario = new ArrayList<>();
 
     static {
-        listaNotasDiario.add(new DiarioMascotaModel(1,1, "22/07/2025 20:57","se durmio todo el dia","despues de comer mucho se durmio como un bebe", R.drawable.dormir,true,"Dormir"));
-        listaNotasDiario.add(new DiarioMascotaModel(2,2, "22/07/2025 20:57","lo bañe con nuevo shampoo","estoy probando un nuevo shampo antipulga, espero que funcione", R.drawable.banio,false,"Baño"));
+        listaNotasDiario.add(new DiarioMascotaModel(1,1, "22/07/2025 20:57","se durmio todo el dia","despues de comer mucho se durmio como un bebe", R.drawable.dormir,true,"Dormir",null));
+        listaNotasDiario.add(new DiarioMascotaModel(2,1, "22/07/2025 20:57","lo bañe con nuevo shampoo","estoy probando un nuevo shampo antipulga, espero que funcione", R.drawable.banio,false,"Baño",null));
     }
 
 
-    public DiarioMascotaModel(int id, int idMascota, String fecha, String titulo, String nota, int pathImagen, boolean favorito, String actividad) {
+    public DiarioMascotaModel(int id, int idMascota, String fecha, String titulo, String nota, int pathImagen, boolean favorito, String actividad, String uriImage) {
         this.id = id;
         this.idMascota = idMascota;
         this.fecha = fecha;
@@ -31,6 +35,7 @@ public class DiarioMascotaModel {
         this.pathImagen = pathImagen;
         this.favorito = favorito;
         this.actividad = actividad;
+        this.uriImage = uriImage;
     }
 
     public DiarioMascotaModel() {
@@ -98,5 +103,52 @@ public class DiarioMascotaModel {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+    }
+
+    public String getUriImage() {
+        return uriImage;
+    }
+
+    public void setUriImage(String uriImage) {
+        this.uriImage = uriImage;
+    }
+
+    public static int generarNuevoId() {
+        if (listaNotasDiario.isEmpty()) {
+            return 1;
+        } else {
+            // Busca el ID más alto y suma 1
+            int ultimoId = 0;
+            for (DiarioMascotaModel nota : listaNotasDiario) {
+                if (nota.getId() > ultimoId) {
+                    ultimoId = nota.getId();
+                }
+            }
+            return ultimoId + 1;
+        }
+    }
+
+    public static DiarioMascotaModel buscarPorId(int idBuscado) {
+        for (DiarioMascotaModel nota : listaNotasDiario) {
+            if (nota.getId() == idBuscado) {
+                return nota;
+            }
+        }
+        return null; // No encontrado
+    }
+
+    @Override
+    public String toString() {
+        return "DiarioMascotaModel{" +
+                "id=" + id +
+                ", idMascota=" + idMascota +
+                ", fecha='" + fecha + '\'' +
+                ", titulo='" + titulo + '\'' +
+                ", nota='" + nota + '\'' +
+                ", pathImagen=" + pathImagen +
+                ", favorito=" + favorito +
+                ", actividad='" + actividad + '\'' +
+                ", uriImage='" + uriImage + '\'' +
+                '}';
     }
 }

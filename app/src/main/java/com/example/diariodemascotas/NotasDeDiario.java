@@ -2,6 +2,7 @@ package com.example.diariodemascotas;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -59,7 +60,20 @@ public class NotasDeDiario extends AppCompatActivity {
 
         recyclerView_notas = findViewById(R.id.recycler_view);
         recyclerView_notas.setLayoutManager(new LinearLayoutManager(this));
-        adapterMascotas = new NotasDiarioAdapter(listaNotasDiario);
+        adapterMascotas = new NotasDiarioAdapter(listaNotasDiario, new NotasDiarioAdapter.OnClickListener() {
+            @Override
+            public void eliminarItem(int position) {
+                listaNotasDiario.remove(position);
+                adapterMascotas.notifyItemRemoved(position);
+            }
+            @Override
+            public void editarItem(int id) {
+                    Intent intent = new Intent(NotasDeDiario.this, EditarRegistroActividad.class);
+                    intent.putExtra("id",id);
+                    startActivity(intent);
+
+            }
+        });
         recyclerView_notas.setAdapter(adapterMascotas);
 
         fab.setOnClickListener(view -> {
