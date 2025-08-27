@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/cuatro_perritos_en_linea"
-    tools:context=".MainActivity">
-
+    tools:context=".ActivityRegister">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,14 +17,43 @@
         tools:layout_editor_absoluteX="30dp">
 
         <TextView
+            android:textStyle="bold"
             android:textColor="@color/primary"
-            android:textStyle="bold|italic"
             android:textSize="30dp"
-            android:text="✏️Pet Diary"
+            android:text="Nuevo Usuario"
             android:textAlignment="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Nombre completo" />
+
+        <EditText
+            android:id="@+id/txt_nombre_completo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/tertiary"
+            android:inputType="textCapWords"
+            android:padding="10dp"
+            android:textAlignment="textStart" />
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:inputType="textCapWords"
+            android:layout_height="wrap_content"
+            android:text="Apellidos" />
+
+        <EditText
+            android:id="@+id/txt_apellidos_completo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/tertiary"
+            android:padding="10dp"
+            android:textAlignment="textStart" />
         <TextView
             android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
@@ -39,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/tertiary"
-            android:hint="Ingrese su correo"
+            android:hint="example@gmail.com"
             android:inputType="textEmailAddress"
             android:padding="10dp"
             android:textAlignment="center" />
@@ -55,40 +81,40 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/tertiary"
-            android:hint="Ingrese su contraseña"
+            android:hint="*****"
             android:inputType="textPassword"
             android:padding="10dp"
             android:textAlignment="center" />
-        <CheckBox
-            android:text="recordar contraseña"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="confirma tu contraseña" />
 
+        <EditText
+            android:id="@+id/confirmar_contraseña"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+            android:background="@color/tertiary"
+            android:hint="*****"
+            android:inputType="textPassword"
+            android:padding="10dp"
+            android:textAlignment="center" />
         <Button
-            android:id="@+id/button_iniciar_sesion"
+            android:id="@+id/btn_registrar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Iniciar Sesión" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_registrar"
+            android:text="Registrar Usuario" />
+        <Button
+            android:backgroundTint="@color/gray"
+            android:id="@+id/btn_regresar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Registrar nuevo usuario"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+            android:text="Regresar" />
+
 
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/un_perro_blanco_feliz" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

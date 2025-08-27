@@ -33,6 +33,7 @@ public class NotasDeDiario extends AppCompatActivity {
     FloatingActionButton fab;
     Toolbar toolbar;
     ImageButton imageButon_sincronizar;
+    ImageButton imageButon_mapa;
 
 
     @Override
@@ -56,6 +57,7 @@ public class NotasDeDiario extends AppCompatActivity {
 
         listaMascotasRegistradas = mascotasModel.listaMascotasRegistradas;
         listaNotasDiario = diarioMascotaModel.listaNotasDiario;
+        imageButon_mapa= findViewById(R.id.imageButon_mapa);
 
 
         recyclerView_notas = findViewById(R.id.recycler_view);
@@ -84,6 +86,12 @@ public class NotasDeDiario extends AppCompatActivity {
         imageButon_sincronizar.setOnClickListener(view -> {
             adapterMascotas.notifyDataSetChanged();
             Toast.makeText(this, "Sincronizando...", Toast.LENGTH_SHORT).show();
+        });
+
+
+        imageButon_mapa.setOnClickListener(view -> {
+            Intent intent = new Intent(this, RegistrosDeUbicacion.class);
+            startActivity(intent);
         });
 
         toolbar.setNavigationOnClickListener(view -> {

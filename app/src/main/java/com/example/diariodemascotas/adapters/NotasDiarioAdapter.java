@@ -59,6 +59,8 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
         }else{
             holder.imgFavorito.setVisibility(View.INVISIBLE);
         }
+        if(nota.getLatitud()==0.0 && nota.getLongitud()==0.0)
+        {holder.imgUbicacion.setVisibility(View.INVISIBLE);}else{holder.imgUbicacion.setVisibility(View.VISIBLE);}
     }
 
     @Override
@@ -70,6 +72,7 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
         TextView txtFecha, txtTitulo, txtNota;
         ImageView imgMascota, imgFavorito;
         Button btnEditar, btnEliminar;
+        ImageView imgUbicacion;
         public ViewHolderNotas(@NonNull View itemView) {
             super(itemView);
 
@@ -82,6 +85,7 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
 
             btnEditar = itemView.findViewById(R.id.btn_editar);
             btnEliminar = itemView.findViewById(R.id.btn_eliminar);
+            imgUbicacion = itemView.findViewById(R.id.icon_map);
 
             btnEditar.setOnClickListener(view -> {
                 int id = listaNotas.get(getAdapterPosition()).getId();
@@ -92,6 +96,7 @@ public class NotasDiarioAdapter extends RecyclerView.Adapter<NotasDiarioAdapter.
             btnEliminar.setOnClickListener(view -> {
                 onClickListener.eliminarItem(getAdapterPosition());
             });
+
         }
     }
 }

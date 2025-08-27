@@ -2,6 +2,8 @@ package com.example.diariodemascotas;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -34,6 +37,7 @@ public class RegistroActividad extends AppCompatActivity {
     EditText nota;
     Spinner spinnerActividades;
     Button btnAgregarImagen;
+    Button btnAgregarDireccion;
     ImageView imageView;
     CheckBox checkBoxFavoritoS;
     Button btnCancelar;
@@ -41,6 +45,9 @@ public class RegistroActividad extends AppCompatActivity {
 
     String uriImage;
     ImageView btnDesplegarFecha;
+    double lat=0.0;
+    double lng=0.0;
+    private static final int RC_PICK_LOCATION = 1234;
 
     private final ActivityResultLauncher<String[]> seleccionarImagenLauncher =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
@@ -56,6 +63,9 @@ public class RegistroActividad extends AppCompatActivity {
                     uriImage = uri.toString(); // Guardar en tu modelo
                 }
             });
+
+
+    private ActivityResultLauncher<Intent> mapaLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +92,7 @@ public class RegistroActividad extends AppCompatActivity {
         btnCancelar = findViewById(R.id.btn_cancelar);
         btnGuardar = findViewById(R.id.btn_guardar);
         btnDesplegarFecha = findViewById(R.id.desplegarFecha);
+        btnAgregarDireccion = findViewById(R.id.btn_agregar_direccion);
 
 
         toolbar.setTitle("Toto");
@@ -95,6 +106,11 @@ public class RegistroActividad extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
                 // Opcional
             }
+        });
+
+        btnAgregarDireccion.setOnClickListener(view -> {
+            Intent intent = new Intent(this, ActividadMaps.class);
+            startActivityForResult(intent, RC_PICK_LOCATION);
         });
 
 
@@ -134,6 +150,8 @@ public class RegistroActividad extends AppCompatActivity {
         diarioMascotaModel.setUriImage(uriImage);
         diarioMascotaModel.setFavorito(checkBoxFavoritoS.isChecked());
         diarioMascotaModel.setActividad(spinnerActividades.getSelectedItem().toString());
+        diarioMascotaModel.setLatitud(lat);
+        diarioMascotaModel.setLongitud(lng);
         DiarioMascotaModel.listaNotasDiario.add(diarioMascotaModel);
     }
 
@@ -184,5 +202,19 @@ public class RegistroActividad extends AppCompatActivity {
                 anio, mes, dia
         );
         datePickerDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_PICK_LOCATION && resultCode == RESULT_OK && data != null) {
+            lat = data.getDoubleExtra(ActividadMaps.EXTRA_LAT, Double.NaN);
+            lng = data.getDoubleExtra(ActividadMaps.EXTRA_LNG, Double.NaN);
+
+            if (!Double.isNaN(lat) && !Double.isNaN(lng)) {
+                Toast.makeText(this, "Lat: " + lat + "  Lng: " + lng, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

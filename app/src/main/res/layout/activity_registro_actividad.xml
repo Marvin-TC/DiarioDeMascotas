@@ -83,7 +83,7 @@
             android:layout_below="@id/text1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:lines="5"/>
+            android:lines="3"/>
 
         <Spinner
             android:id="@+id/spinner_actividades"
@@ -110,23 +110,39 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
-        <Button
-            android:drawableLeft="@drawable/baseline_camera_alt_24"
-            android:textColor="@color/gray"
-            android:backgroundTint="@color/tertiary"
-            android:text="Tomar foto o elegir una imagen"
-            android:layout_marginTop="10dp"
-            android:layout_centerHorizontal="true"
+
+        <LinearLayout
+            android:gravity="center_horizontal"
+            android:id="@+id/linear_opciones"
             android:layout_below="@id/linear_favoritess"
-            android:id="@+id/btn_agregar_imagen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_agregar_direccion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/tertiary"
+                android:drawableLeft="@drawable/baseline_location_pin_24"
+                android:text="agregar ubicación"
+                android:textColor="@color/gray" />
+            <Button
+                android:drawableLeft="@drawable/baseline_camera_alt_24"
+                android:textColor="@color/gray"
+                android:backgroundTint="@color/tertiary"
+                android:text="Tomar foto o elegir una imagen"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/btn_agregar_imagen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/imageViewFoto"
             android:src="@drawable/dormir"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/btn_agregar_imagen"
+            android:layout_below="@id/linear_opciones"
             android:layout_alignParentBottom="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

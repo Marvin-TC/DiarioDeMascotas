@@ -26,14 +26,16 @@
                 android:src="@drawable/outline_directory_sync_24"
                 android:layout_width="56dp"
                 android:layout_height="match_parent"/>
+            <ImageButton
+                android:id="@+id/imageButon_mapa"
+                android:background="@null"
+                android:src="@drawable/outline_map_24"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"/>
             <ImageView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/icono_perro"/>
-            <ImageView
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:src="@drawable/icono_gato"/>
         </LinearLayout>
     </com.google.android.material.appbar.MaterialToolbar>
 

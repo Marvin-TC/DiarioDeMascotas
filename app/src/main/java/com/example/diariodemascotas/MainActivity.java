@@ -12,11 +12,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.diariodemascotas.database.DBHelper;
+
 public class MainActivity extends AppCompatActivity {
 
     Button btnIniciarSesion;
     EditText usuario;
     EditText contraseña;
+    Button registrarNuevoUsuario;
+    DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,14 @@ public class MainActivity extends AppCompatActivity {
         btnIniciarSesion = findViewById(R.id.button_iniciar_sesion);
         usuario = findViewById(R.id.usuario);
         contraseña = findViewById(R.id.contraseña);
+        registrarNuevoUsuario = findViewById(R.id.button_registrar);
+        db = new DBHelper(this);
+
+
+        registrarNuevoUsuario.setOnClickListener(view -> {
+            Intent intent = new Intent(this, ActivityRegister.class);
+            startActivity(intent);
+        });
 
         btnIniciarSesion.setOnClickListener(view -> {
 
@@ -39,18 +51,21 @@ public class MainActivity extends AppCompatActivity {
             {
                 Toast.makeText(this, "Ingrese usuario y contraseña", Toast.LENGTH_SHORT).show();
             }else{
-                Intent intent = new Intent(this, NotasDeDiario.class);
-
-                if (usuario.getText().toString().equals("admin") && contraseña.getText().toString().equals("admin"))
-                {
-
-                    startActivity(intent);
-                }
-                else{
-                    Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+                try {
+                    boolean login = db.checkLogin(usuario.getText().toString().trim(), contraseña.getText().toString().trim().toCharArray());
+                    if (login)
+                    {
+                        Toast.makeText(this,"Bienvenido", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(this, NotasDeDiario.class);
+                        startActivity(intent);
+                    }
+                    else {
+                        Toast.makeText(this, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show();
+                    }
+                }catch (Exception e){
+                    Toast.makeText(this, "Error al iniciar sesion", Toast.LENGTH_SHORT).show();
                 }
             }
-
         });
 
 

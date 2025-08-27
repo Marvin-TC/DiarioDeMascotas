@@ -17,16 +17,19 @@ public class DiarioMascotaModel {
     boolean favorito;
     String  actividad;
     String uriImage;
+    private double latitud;
+    private double longitud;
 
     public static List<DiarioMascotaModel> listaNotasDiario = new ArrayList<>();
 
     static {
-        listaNotasDiario.add(new DiarioMascotaModel(1,1, "22/07/2025 20:57","se durmio todo el dia","despues de comer mucho se durmio como un bebe", R.drawable.dormir,true,"Dormir",null));
-        listaNotasDiario.add(new DiarioMascotaModel(2,1, "22/07/2025 20:57","lo bañe con nuevo shampoo","estoy probando un nuevo shampo antipulga, espero que funcione", R.drawable.banio,false,"Baño",null));
+        listaNotasDiario.add(new DiarioMascotaModel(1,1, "22/07/2025 20:57","se durmio todo el dia","despues de comer mucho se durmio como un bebe", R.drawable.dormir,true,"Dormir",null, 0.0,0.0));
+        listaNotasDiario.add(new DiarioMascotaModel(2,1, "22/07/2025 20:57","lo bañe con nuevo shampoo","estoy probando un nuevo shampo antipulga, espero que funcione", R.drawable.banio,false,"Baño",null,0.0,0.0));
     }
 
 
-    public DiarioMascotaModel(int id, int idMascota, String fecha, String titulo, String nota, int pathImagen, boolean favorito, String actividad, String uriImage) {
+    public DiarioMascotaModel(int id, int idMascota, String fecha, String titulo, String nota, int pathImagen, boolean favorito, String actividad, String uriImage,
+    double latitud, double longitud) {
         this.id = id;
         this.idMascota = idMascota;
         this.fecha = fecha;
@@ -36,6 +39,8 @@ public class DiarioMascotaModel {
         this.favorito = favorito;
         this.actividad = actividad;
         this.uriImage = uriImage;
+        this.latitud = latitud;
+        this.longitud = longitud;
     }
 
     public DiarioMascotaModel() {
@@ -150,5 +155,21 @@ public class DiarioMascotaModel {
                 ", actividad='" + actividad + '\'' +
                 ", uriImage='" + uriImage + '\'' +
                 '}';
+    }
+
+    public double getLatitud() {
+        return latitud;
+    }
+
+    public double getLongitud() {
+        return longitud;
+    }
+
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
+    }
+
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
     }
 }
