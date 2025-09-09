@@ -2,10 +2,12 @@ package com.example.diariodemascotas;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -26,6 +28,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.diariodemascotas.models.DiarioMascotaModel;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
 
 import java.util.Calendar;
 
@@ -45,42 +51,55 @@ public class RegistroActividad extends AppCompatActivity {
 
     String uriImage;
     ImageView btnDesplegarFecha;
-    double lat=0.0;
-    double lng=0.0;
+    double lat = 0.0;
+    double lng = 0.0;
     private static final int RC_PICK_LOCATION = 1234;
+
+    private FirebaseAnalytics analytics;
+    private boolean allowAnalytics = true;
+    private Trace trace;
 
     private final ActivityResultLauncher<String[]> seleccionarImagenLauncher =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), uri -> {
                 if (uri != null) {
                     imageView.setImageURI(uri);
-
                     final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
                     try {
                         getContentResolver().takePersistableUriPermission(uri, takeFlags);
                     } catch (SecurityException e) {
                         e.printStackTrace();
                     }
-                    uriImage = uri.toString(); // Guardar en tu modelo
+                    uriImage = uri.toString();
                 }
             });
-
-
-    private ActivityResultLauncher<Intent> mapaLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_registro_actividad);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        // Firebase
+        analytics = FirebaseAnalytics.getInstance(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        allowAnalytics = prefs.getBoolean("allow_analytics", true);
+        trace = FirebasePerformance.getInstance().newTrace("trace_crear_registro");
+        trace.start();
 
+        if (allowAnalytics) {
+            Bundle screen = new Bundle();
+            screen.putString(FirebaseAnalytics.Param.SCREEN_NAME, "registro_actividad");
+            screen.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "RegistroActividad");
+            analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, screen);
+        }
 
-
+        // UI
         toolbar = findViewById(R.id.toolbar);
         fechaRegistro = findViewById(R.id.fecha_registro);
         titulo = findViewById(R.id.titulo);
@@ -94,18 +113,14 @@ public class RegistroActividad extends AppCompatActivity {
         btnDesplegarFecha = findViewById(R.id.desplegarFecha);
         btnAgregarDireccion = findViewById(R.id.btn_agregar_direccion);
 
-
         toolbar.setTitle("Toto");
+
         spinnerActividades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 imageView.setImageResource(llenarImagen(spinnerActividades.getSelectedItem().toString()));
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Opcional
-            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         btnAgregarDireccion.setOnClickListener(view -> {
@@ -113,33 +128,58 @@ public class RegistroActividad extends AppCompatActivity {
             startActivityForResult(intent, RC_PICK_LOCATION);
         });
 
+        btnGuardar.setOnClickListener(view -> {
+            try {
+                realizarRegistro();
 
-        btnGuardar.setOnClickListener(View -> {
-            realizarRegistro();
-            Toast.makeText(this, "“\"¡Entrada guardada! \uD83D\uDC36 Tu lomito está orgulloso", Toast.LENGTH_LONG).show();
-            finish();
+                if (allowAnalytics) {
+                    Bundle evento = new Bundle();
+                    evento.putString("actividad", spinnerActividades.getSelectedItem().toString());
+                    evento.putBoolean("favorito", checkBoxFavoritoS.isChecked());
+                    evento.putBoolean("con_foto", uriImage != null);
+                    evento.putBoolean("tiene_ubicacion", !(lat == 0.0 && lng == 0.0));
+                    analytics.logEvent("diario_creado", evento);
+                }
+
+                trace.putAttribute("registro_creado", "true");
+                trace.stop();
+
+                Toast.makeText(this, "¡Entrada guardada! 🐶 Tu lomito está orgulloso", Toast.LENGTH_LONG).show();
+                finish();
+
+            } catch (Exception ex) {
+                FirebaseCrashlytics.getInstance().setCustomKey("flow", "registro_actividad");
+                FirebaseCrashlytics.getInstance().recordException(ex);
+
+                if (allowAnalytics) {
+                    Bundle e = new Bundle();
+                    e.putString("error_code", ex.getMessage());
+                    analytics.logEvent("registro_fail", e);
+                }
+
+                trace.putAttribute("error", ex.getMessage());
+                trace.stop();
+
+                Toast.makeText(this, "Error al guardar registro", Toast.LENGTH_SHORT).show();
+            }
         });
-
 
         btnCancelar.setOnClickListener(view -> {
             getOnBackPressedDispatcher().onBackPressed();
-
         });
+
         toolbar.setNavigationOnClickListener(view -> {
             getOnBackPressedDispatcher().onBackPressed();
         });
 
         btnAgregarImagen.setOnClickListener(view -> {
-            seleccionarImagenLauncher.launch(new String[] {"image/*"});
+            seleccionarImagenLauncher.launch(new String[]{"image/*"});
         });
 
-        btnDesplegarFecha.setOnClickListener(view -> {
-            mostrarDatePicker();
-        });
-
-
+        btnDesplegarFecha.setOnClickListener(view -> mostrarDatePicker());
     }
-    public void realizarRegistro(){
+
+    public void realizarRegistro() {
         DiarioMascotaModel diarioMascotaModel = new DiarioMascotaModel();
         diarioMascotaModel.setId(DiarioMascotaModel.generarNuevoId());
         diarioMascotaModel.setIdMascota(1);
@@ -155,39 +195,25 @@ public class RegistroActividad extends AppCompatActivity {
         DiarioMascotaModel.listaNotasDiario.add(diarioMascotaModel);
     }
 
-    public int llenarImagen(String tipoActividad)
-    {
-        switch (tipoActividad){
-            case "Baño":
-                return R.drawable.banio;
-            case "Beber":
-                return R.drawable.beber;
-            case "Caminata":
-                return R.drawable.caminata;
-            case "Comer":
-                return R.drawable.comer;
-            case "Correr":
-                return R.drawable.correr;
-            case "Dormir":
-                return R.drawable.dormir;
-            case "Juego":
-                return R.drawable.juego;
-            case "Nececidades":
-                return R.drawable.necesidades;
-            case "Otros":
-                return R.drawable.otros;
-            case "Paseo":
-                return R.drawable.paseo;
-            case "Siesta":
-                return R.drawable.siesta;
-            case "Vacunación":
-                return R.drawable.vacuna;
-        };
+    public int llenarImagen(String tipoActividad) {
+        switch (tipoActividad) {
+            case "Baño": return R.drawable.banio;
+            case "Beber": return R.drawable.beber;
+            case "Caminata": return R.drawable.caminata;
+            case "Comer": return R.drawable.comer;
+            case "Correr": return R.drawable.correr;
+            case "Dormir": return R.drawable.dormir;
+            case "Juego": return R.drawable.juego;
+            case "Nececidades": return R.drawable.necesidades;
+            case "Otros": return R.drawable.otros;
+            case "Paseo": return R.drawable.paseo;
+            case "Siesta": return R.drawable.siesta;
+            case "Vacunación": return R.drawable.vacuna;
+        }
         return 0;
     }
 
     private void mostrarDatePicker() {
-        // Obtener la fecha actual como predeterminada
         final Calendar calendar = Calendar.getInstance();
         int anio = calendar.get(Calendar.YEAR);
         int mes = calendar.get(Calendar.MONTH);
